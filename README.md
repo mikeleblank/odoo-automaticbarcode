@@ -20,11 +20,6 @@ Ideal para comercios, depósitos, logística, ferreterías, bazares y cualquier 
 
 6. Prueba del Funcionamiento
 
-7. Opcionales recomendados
-
-8. Impresión con TSC TE200
-
-9. Estructura sugerida para repositorio
 
 🔧 1. Activar Modo Desarrollador
 
