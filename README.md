@@ -1,159 +1,142 @@
-📘 Manual Completo – Generación Automática de Códigos de Barra en Odoo
-🏷️ Versión profesional optimizada para GitHub
-📝 Descripción general
+# 📘 Manual Completo – Generación Automática de Códigos de Barra en Odoo
+### 🏷️ Versión profesional optimizada para GitHub
 
-Este documento explica cómo configurar Odoo para generar automáticamente códigos de barras secuenciales (Code128) al crear o actualizar productos sin código.
+---
 
-Ideal para comercios, depósitos, logística, ferreterías, bazares y cualquier operación que requiera etiquetar productos que llegan sin código.
+## 📝 Descripción general
+Este documento explica cómo configurar **Odoo** para generar automáticamente **códigos de barras secuenciales (Code128)** al crear o actualizar productos sin código.  
 
-📌 Índice
+Ideal para comercios, depósitos, logística y cualquier operación que requiera etiquetado automático.
 
-1. Activar Modo Desarrollador
+---
 
-2. Crear la Secuencia de Códigos de Barra
+# 🔧 1. Activar Modo Desarrollador
+1. Ir a **Ajustes**
+2. Desplazarse hasta el final
+3. Click en **“Activar modo desarrollador”**
 
-3. Crear la Automatización en Odoo Studio
+Si no aparece, agregar `?debug=1` al final de la URL.
 
-4. Configurar Condición y Acción
+---
 
-5. Código Python seguro para Odoo Online/Enterprise
+# 🔢 2. Crear Secuencia Automática
+Ruta:
 
-6. Prueba del Funcionamiento
+**Ajustes → Técnico → Secuencias & Identificadores → Secuencias → Crear**
 
+Configurar:
 
-🔧 1. Activar Modo Desarrollador
+| Campo | Valor |
+|-------|--------|
+| Nombre | Secuencia Código de Barras |
+| Código técnico | product.barcode.sequence |
+| Prefijo | P |
+| Relleno | 6 |
+| Próximo número | 1 |
 
-Para acceder al menú donde se crean secuencias, primero activamos el modo desarrollador.
+Ejemplo generado:
 
-📍 Pasos:
-
-Ir a Ajustes.
-
-Desplazarse hasta el final.
-
-Hacer clic en “Activar modo desarrollador”.
-
-Si el botón no aparece:
-
-📌 Método alternativo: agregar ?debug=1 al final de la URL
-
-https://tuodoo.com/web?debug=1
-
-
-Ahora deberías ver el menú:
-
-Ajustes → Técnico
-
-🔢 2. Crear la Secuencia de Códigos de Barra
-📍 Pasos:
-
-Ir a Ajustes → Técnico → Secuencias & Identificadores → Secuencias
-
-Clic en Crear
-
-📄 Completar los campos así:
-Campo	Valor recomendado
-Nombre	Secuencia Código de Barras
-Código técnico	product.barcode.sequence
-Prefijo	P (opcional)
-Relleno	6
-Próximo número	1
-Incremento	1
-🔎 Ejemplo de secuencia generada:
+```
 P000001
 P000002
 P000003
-...
+```
 
+---
 
-💾 Guardar la secuencia.
+# 🛠️ 3. Crear Automatización en Odoo Studio
+1. Inventario → Productos  
+2. Abrir cualquier producto  
+3. Click en **Odoo Studio**  
+4. Ir a **Automatizaciones**  
+5. Crear nueva regla
 
-🛠️ 3. Crear la Automatización en Odoo Studio
+---
 
-Esta automatización llenará automáticamente el campo barcode cuando esté vacío.
+# ⚙ 4. Configurar Condición y Acción
 
-📍 Pasos:
+## Encabezado
+- **Nombre:** Generar código de barras automático  
+- **Modelo:** product.template
 
-Ir a Inventario → Productos
+## Disparadores
+- ✔ Al crear  
+- ✔ Al actualizar  
 
-Abrir cualquier producto
-
-Hacer clic en Odoo Studio (icono de herramientas)
-
-En el menú lateral derecho, ir a Automatizaciones
-
-Clic en Crear
-
-⚙ 4. Configurar Condición y Acción
-🏷️ 4.1 Encabezado
-Campo	Valor
-Nombre	Generar código de barras automático
-Modelo	product.template
-🔔 4.2 Disparadores
-
-Activar:
-
-✔ Al crear
-
-✔ Al actualizar
-
-Esto asegura que el sistema complete productos nuevos y productos existentes sin código.
-
-🧠 4.3 Condición
-
-Ingresar este dominio:
-
+## Condición
+```
 [('barcode', '=', False)]
+```
 
+---
 
-👉 El sistema solo actuará si barcode está vacío.
-No sobrescribe códigos existentes.
+# 🧩 5. Acción → Ejecutar Código
 
-🧩 5. Código Python Seguro para Odoo Online/Enterprise
+Pegar el siguiente código:
 
-En Acción → Ejecutar código, pegar:
-
+```python
 for rec in records:
     if not rec.barcode:
         sequence = env['ir.sequence'].next_by_code('product.barcode.sequence')
         rec.write({'barcode': sequence})
+```
 
-✔ Compatible con:
+✔ Compatible con Odoo Online  
+✔ No produce errores “forbidden opcode”  
+✔ No sobrescribe códigos existentes  
 
-Odoo Online
+---
 
-Odoo Enterprise Cloud
+# 🧪 6. Prueba del Funcionamiento
+1. Crear producto nuevo  
+2. Dejar vacío el campo Código de barras  
+3. Guardar  
 
-Odoo On-Premise
+Resultado:
 
-Odoo con restricciones de seguridad (evita STORE_ATTR)
-
-💡 ¿Qué hace este código?
-
-Verifica si el producto no tiene código
-
-Pide a la secuencia un número nuevo
-
-Lo escribe correctamente usando write()
-
-Evita errores de permisos en Odoo Cloud
-
-🧪 6. Prueba del Funcionamiento
-✔ Probar creación automática:
-
-Crear un nuevo producto
-
-NO completar el campo Código de barras
-
-Guardar
-
-Resultado esperado:
-
+```
 P000001
+```
 
-✔ Probar segundo producto:
+Nuevo producto:
+
+```
 P000002
+```
 
-✔ Probar con producto existente sin código:
+---
 
-Abrir → Guardar → se genera código
+# 🛡 7. Opcionales Recomendados
+
+### Campo obligatorio
+En Studio → seleccionar **barcode** → activar **Requerido**.
+
+---
+
+# 🖨️ 8. Impresión con TSC TE200
+Odoo imprime etiquetas desde:
+
+**Inventario → Productos → Imprimir → Etiquetas**
+
+Compatible con:
+- TSC TE200  
+- Zebra ZD series  
+- Cualquier impresora térmica 4"
+
+---
+
+# 📂 9. Estructura sugerida para el repositorio
+
+```
+docs/
+ ├── manual_codigos_barra_odoo.md
+ ├── ejemplos/
+ ├── imagenes/
+ └── plantillas/
+README.md
+```
+
+---
+
+# 🎉 Manual Completado
+Este README.md está listo para subir directamente a GitHub.
